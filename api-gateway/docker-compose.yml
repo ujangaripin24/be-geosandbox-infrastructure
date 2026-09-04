@@ -1,6 +1,6 @@
 services:
   kong:
-    image: kong:3.6
+    image: kong:latest
     container_name: global-kong-gateway
     restart: always
     environment:

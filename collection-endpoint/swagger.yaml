@@ -1,0 +1,274 @@
+openapi: 3.0.3
+info:
+  title: GeoSandbox Microservices API Documentation
+  description: >
+    Dokumentasi dan pengujian API untuk seluruh microservices GeoSandbox.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000
+    description: Kong API Gateway (Global Proxy)
+  - url: http://localhost:3610
+    description: Auth Service (Direct)
+  - url: http://localhost:3620
+    description: GIS Service (Direct)
+  - url: http://localhost:3630
+    description: User Service (Direct)
+
+tags:
+  - name: Auth Service
+    description: Endpoints untuk registrasi, aktivasi, autentikasi JWT, profile, dan session management.
+  - name: GIS Service
+    description: Endpoints untuk pengolahan data geospasial, fitur peta, dan GeoJSON.
+  - name: User Service
+    description: Endpoints untuk manajemen data pengguna dan hak akses.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Masukkan Token JWT Akses (didapat setelah login).
+
+paths:
+  # =================================================================
+  # AUTH SERVICE ENDPOINTS
+  # =================================================================
+  /api/v1/auth/register:
+    post:
+      tags:
+        - Auth Service
+      summary: Registrasi Pengguna Baru
+      description: Mendaftarkan akun baru dan mengirimkan email token aktivasi.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - password
+                - confPassword
+              properties:
+                username:
+                  type: string
+                  example: user001
+                email:
+                  type: string
+                  example: user001@gmail.com
+                password:
+                  type: string
+                  example: "123456789"
+                confPassword:
+                  type: string
+                  example: "123456789"
+      responses:
+        '201':
+          description: Registrasi Berhasil
+          content:
+            application/json:
+              example:
+                message: Registrasi berhasil. Silakan cek email Anda untuk mengaktifkan akun.
+        '400':
+          description: Validasi Gagal
+          content:
+            application/json:
+              example:
+                errors:
+                  - type: field
+                    value: user001@gmail.com
+                    msg: email sudah terdaftar
+                    path: email
+                    location: body
+
+  /api/v1/auth/activation:
+    get:
+      tags:
+        - Auth Service
+      summary: Aktivasi Akun
+      description: Mengaktifkan akun pengguna melalui token JWT dari email.
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      responses:
+        '200':
+          description: Akun Berhasil Diaktifkan
+          content:
+            application/json:
+              example:
+                message: Akun berhasil diaktifkan! Silakan login.
+        '400':
+          description: Token Tidak Valid / Expired
+          content:
+            application/json:
+              example:
+                errors:
+                  - type: field
+                    value: ""
+                    msg: Link aktivasi tidak valid, kedaluwarsa, atau sudah pernah digunakan
+                    path: token
+                    location: body
+
+  /api/v1/auth/login:
+    post:
+      tags:
+        - Auth Service
+      summary: Login Pengguna
+      description: Autentikasi email & password untuk mendapatkan Access Token & Refresh Token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  example: user001@gmail.com
+                password:
+                  type: string
+                  example: "123456789"
+      responses:
+        '200':
+          description: Login Berhasil
+          content:
+            application/json:
+              example:
+                message: Login Sukses
+                data:
+                  token: eyJhbGciOiJIUzI1Ni...
+                  refreshToken: eyJhbGciOiJIUzI1Ni...
+        '401':
+          description: Email / Password Salah atau Akun belum Aktif
+
+  /api/v1/auth/profile:
+    get:
+      tags:
+        - Auth Service
+      summary: Get Profile Pengguna
+      description: Mengambil data detail profil pengguna yang sedang login.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile Ditemukan
+          content:
+            application/json:
+              example:
+                message: Profile user
+                data:
+                  uuid: 7c4a1622-6b99-4d69-b1d5-2e11d08e4587
+                  username: user001
+                  email: user001@gmail.com
+                  role: user
+                  isActive: true
+                  createdAt: "2026-09-04T17:00:00.000Z"
+                  updatedAt: "2026-09-04T17:05:00.000Z"
+        '401':
+          description: Unauthorized / Token Expired
+
+  /api/v1/auth/refresh-token:
+    post:
+      tags:
+        - Auth Service
+      summary: Refresh Access Token
+      description: Memperbarui Access Token menggunakan Refresh Token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+                  example: eyJhbGciOiJIUzI1Ni...
+      responses:
+        '200':
+          description: Token Refresh Success
+          content:
+            application/json:
+              example:
+                message: Token refresh success
+                data:
+                  token: eyJhbGciOiJIUzI1Ni...
+
+  /api/v1/auth/logout:
+    post:
+      tags:
+        - Auth Service
+      summary: Logout Pengguna
+      description: Menghapus session Refresh Token dari Redis Data Cache.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout Success
+          content:
+            application/json:
+              example:
+                message: Logout success
+
+  # =================================================================
+  # GIS SERVICE ENDPOINTS
+  # =================================================================
+  /api/v1/gis/geojson:
+    get:
+      tags:
+        - GIS Service
+      summary: Get GeoJSON Layer Data
+      description: Mengambil data layer geospasial dalam format standar FeatureCollection GeoJSON.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Data GeoJSON Berhasil Diambil
+          content:
+            application/json:
+              example:
+                type: FeatureCollection
+                features:
+                  - type: Feature
+                    geometry:
+                      type: Point
+                      coordinates: [106.84513, -6.208763]
+                    properties:
+                      name: Monumen Nasional (Monas)
+                      category: Landmark
+
+  # =================================================================
+  # USER SERVICE ENDPOINTS
+  # =================================================================
+  /api/v1/users:
+    get:
+      tags:
+        - User Service
+      summary: List Semua Pengguna (Admin)
+      description: Mengambil daftar pengguna terdaftar di sistem.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Daftar Pengguna
+          content:
+            application/json:
+              example:
+                message: List users
+                data:
+                  - uuid: 7c4a1622-6b99-4d69-b1d5-2e11d08e4587
+                    username: user001
+                    email: user001@gmail.com
+                    role: user
+                    isActive: true
