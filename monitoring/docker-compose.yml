@@ -1,7 +1,7 @@
 services:
   prometheus:
     image: prom/prometheus:latest
-    container_name: geosandbox-prometheus
+    container_name: global-prometheus
     restart: always
     ports:
       - "9090:9090"
@@ -10,7 +10,7 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    container_name: geosandbox-grafana
+    container_name: global-grafana
     restart: always
     ports:
       - "3000:3000"

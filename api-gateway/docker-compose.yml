@@ -1,7 +1,7 @@
 services:
   kong:
     image: kong:3.6
-    container_name: geosandbox-kong-gateway
+    container_name: global-kong-gateway
     restart: always
     environment:
       KONG_DATABASE: "off"
@@ -18,7 +18,7 @@ services:
       - "8443:8443" # HTTPS Proxy Listener
       - "8001:8001" # Admin API (Read-only dalam DB-less mode)
     healthcheck:
-      test: ["CMD", "kong", "health"]
+      test: [ "CMD", "kong", "health" ]
       interval: 10s
       timeout: 10s
       retries: 5
