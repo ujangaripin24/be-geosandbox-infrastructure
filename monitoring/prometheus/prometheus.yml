@@ -1,0 +1,14 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Scrape Prometheus internal metrics
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # Scrape Kong API Gateway metrics (jika plugin prometheus diaktifkan di Kong)
+  - job_name: "kong"
+    static_configs:
+      - targets: ["host.docker.internal:8001"]

@@ -1,0 +1,42 @@
+_format_version: "3.0"
+_transform: true
+
+# Declarative Infrastructure Configuration for Kong API Gateway
+
+# 1. Upstream Services Definition
+services:
+  - name: example-service
+    url: https://httpbin.org
+    routes:
+      - name: example-route
+        paths:
+          - /api/v1/example
+        strip_path: true
+
+  - name: mock-geojson-service
+    url: https://geojson.org
+    routes:
+      - name: mock-geojson-route
+        paths:
+          - /api/v1/geojson
+        strip_path: true
+
+# 2. Global Plugins Definition
+plugins:
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - PATCH
+        - OPTIONS
+      headers:
+        - Accept
+        - Authorization
+        - Content-Type
+      credentials: true
+      max_age: 3600
