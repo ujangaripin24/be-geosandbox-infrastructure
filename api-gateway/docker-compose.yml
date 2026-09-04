@@ -22,3 +22,11 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
+    networks:
+      - default
+      - global-network-geosandbox
+
+networks:
+  default:
+  global-network-geosandbox:
+    name: global-network-geosandbox
