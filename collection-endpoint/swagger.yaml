@@ -177,6 +177,58 @@ paths:
         '401':
           description: Unauthorized / Token Expired
 
+  /api/v1/auth/profile/user:
+    get:
+      tags:
+        - Auth Service
+      summary: Get Profile Pengguna
+      description: Mengambil data detail profil pengguna yang sedang login.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile Ditemukan
+          content:
+            application/json:
+              example:
+                message: Profile user
+                data:
+                  uuid: 7c4a1622-6b99-4d69-b1d5-2e11d08e4587
+                  username: user001
+                  email: user001@gmail.com
+                  role: user
+                  isActive: true
+                  createdAt: "2026-09-04T17:00:00.000Z"
+                  updatedAt: "2026-09-04T17:05:00.000Z"
+        '401':
+          description: Unauthorized / Token Expired
+
+  /api/v1/auth/profile/admin:
+    get:
+      tags:
+        - Auth Service
+      summary: Get Profile Pengguna
+      description: Mengambil data detail profil pengguna yang sedang login.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile Ditemukan
+          content:
+            application/json:
+              example:
+                message: Profile user
+                data:
+                  uuid: 7c4a1622-6b99-4d69-b1d5-2e11d08e4587
+                  username: user001
+                  email: user001@gmail.com
+                  role: user
+                  isActive: true
+                  createdAt: "2026-09-04T17:00:00.000Z"
+                  updatedAt: "2026-09-04T17:05:00.000Z"
+        '401':
+          description: Unauthorized / Token Expired
+
   /api/v1/auth/refresh-token:
     post:
       tags:
