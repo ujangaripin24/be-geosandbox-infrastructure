@@ -369,3 +369,24 @@ paths:
                     email: user001@gmail.com
                     role: user
                     isActive: true
+  /api/v1/users/get-all:
+    get:
+      tags:
+        - User Service
+      summary: List Semua Pengguna
+      description: Mengambil daftar pengguna terdaftar di sistem.
+      # security: 
+      # - bearerAuth: []
+      responses:
+        '200':
+          description: Daftar Pengguna
+          content:
+            application/json:
+              example:
+                message: List users
+                data:
+                  - uuid: 7c4a1622-6b99-4d69-b1d5-2e11d08e4587
+                    username: user001
+                    email: user001@gmail.com
+                    role: user
+                    isActive: true
