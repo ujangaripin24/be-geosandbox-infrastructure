@@ -14,3 +14,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - global-network-geosandbox
+
+networks:
+  default:
+  global-network-geosandbox:
+    external: true
