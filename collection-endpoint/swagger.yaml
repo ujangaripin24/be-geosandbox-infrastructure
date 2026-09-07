@@ -41,7 +41,7 @@ paths:
         - Auth Service
       summary: Health Check
       responses:
-        '200':
+        "200":
           description: Auth Service Berhasil Berjalan
           content:
             application/json:
@@ -81,13 +81,13 @@ paths:
                   type: string
                   example: "123456789"
       responses:
-        '201':
+        "201":
           description: Registrasi Berhasil
           content:
             application/json:
               example:
                 message: Registrasi berhasil. Silakan cek email Anda untuk mengaktifkan akun.
-        '400':
+        "400":
           description: Validasi Gagal
           content:
             application/json:
@@ -113,13 +113,13 @@ paths:
             type: string
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
       responses:
-        '200':
+        "200":
           description: Akun Berhasil Diaktifkan
           content:
             application/json:
               example:
                 message: Akun berhasil diaktifkan! Silakan login.
-        '400':
+        "400":
           description: Token Tidak Valid / Expired
           content:
             application/json:
@@ -154,7 +154,7 @@ paths:
                   type: string
                   example: "123456789"
       responses:
-        '200':
+        "200":
           description: Login Berhasil
           content:
             application/json:
@@ -163,7 +163,7 @@ paths:
                 data:
                   token: eyJhbGciOiJIUzI1Ni...
                   refreshToken: eyJhbGciOiJIUzI1Ni...
-        '401':
+        "401":
           description: Email / Password Salah atau Akun belum Aktif
 
   /api/v1/auth/profile:
@@ -175,7 +175,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Profile Ditemukan
           content:
             application/json:
@@ -189,7 +189,7 @@ paths:
                   isActive: true
                   createdAt: "2026-09-04T17:00:00.000Z"
                   updatedAt: "2026-09-04T17:05:00.000Z"
-        '401':
+        "401":
           description: Unauthorized / Token Expired
 
   /api/v1/auth/profile/user:
@@ -201,7 +201,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Profile Ditemukan
           content:
             application/json:
@@ -215,7 +215,7 @@ paths:
                   isActive: true
                   createdAt: "2026-09-04T17:00:00.000Z"
                   updatedAt: "2026-09-04T17:05:00.000Z"
-        '401':
+        "401":
           description: Unauthorized / Token Expired
 
   /api/v1/auth/profile/admin:
@@ -227,7 +227,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Profile Ditemukan
           content:
             application/json:
@@ -241,7 +241,7 @@ paths:
                   isActive: true
                   createdAt: "2026-09-04T17:00:00.000Z"
                   updatedAt: "2026-09-04T17:05:00.000Z"
-        '401':
+        "401":
           description: Unauthorized / Token Expired
 
   /api/v1/auth/refresh-token:
@@ -263,7 +263,7 @@ paths:
                   type: string
                   example: eyJhbGciOiJIUzI1Ni...
       responses:
-        '200':
+        "200":
           description: Token Refresh Success
           content:
             application/json:
@@ -281,7 +281,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Logout Success
           content:
             application/json:
@@ -297,7 +297,7 @@ paths:
         - GIS Service
       summary: Health Check
       responses:
-        '200':
+        "200":
           description: GIS Service Berhasil Berjalan
           content:
             application/json:
@@ -305,7 +305,7 @@ paths:
                 status: 200
                 message: "[SERVICE-GIS] Server Berhasil Berjalan"
                 date: "2026-09-05T11:05:35"
-                
+
   /api/v1/gis/geojson:
     get:
       tags:
@@ -315,7 +315,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Data GeoJSON Berhasil Diambil
           content:
             application/json:
@@ -339,7 +339,7 @@ paths:
         - User Service
       summary: Health Check
       responses:
-        '200':
+        "200":
           description: User Service Berhasil Berjalan
           content:
             application/json:
@@ -357,7 +357,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Daftar Pengguna
           content:
             application/json:
@@ -375,10 +375,10 @@ paths:
         - User Service
       summary: List Semua Pengguna
       description: Mengambil daftar pengguna terdaftar di sistem.
-      # security: 
-      # - bearerAuth: []
+      security:
+        - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Daftar Pengguna
           content:
             application/json:
@@ -390,3 +390,55 @@ paths:
                     email: user001@gmail.com
                     role: user
                     isActive: true
+
+  /api/v1/user/profile/user:
+    get:
+      tags:
+        - User Service
+      summary: Get Profile Pengguna
+      description: Mengambil data detail profil pengguna yang sedang login.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Profile Ditemukan
+          content:
+            application/json:
+              example:
+                message: Profile user
+                data:
+                  uuid: 7c4a1622-6b99-4d69-b1d5-2e11d08e4587
+                  username: user001
+                  email: user001@gmail.com
+                  role: user
+                  isActive: true
+                  createdAt: "2026-09-04T17:00:00.000Z"
+                  updatedAt: "2026-09-04T17:05:00.000Z"
+        "401":
+          description: Unauthorized / Token Expired
+
+  /api/v1/user/profile/admin:
+    get:
+      tags:
+        - User Service
+      summary: Get Profile Pengguna
+      description: Mengambil data detail profil pengguna yang sedang login.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Profile Ditemukan
+          content:
+            application/json:
+              example:
+                message: Profile user
+                data:
+                  uuid: 7c4a1622-6b99-4d69-b1d5-2e11d08e4587
+                  username: user001
+                  email: user001@gmail.com
+                  role: user
+                  isActive: true
+                  createdAt: "2026-09-04T17:00:00.000Z"
+                  updatedAt: "2026-09-04T17:05:00.000Z"
+        "401":
+          description: Unauthorized / Token Expired
