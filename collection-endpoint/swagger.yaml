@@ -442,3 +442,95 @@ paths:
                   updatedAt: "2026-09-04T17:05:00.000Z"
         "401":
           description: Unauthorized / Token Expired
+
+  /api/v1/users/detail/{uuid}:
+    get:
+      tags:
+        - User Service
+      summary: Get Detail Profile Pengguna
+      description: Mengambil data detail profil pengguna berdasarkan UUID.
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: UUID unik milik pengguna
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Profile Ditemukan
+          content:
+            application/json:
+              example:
+                message: "Get All Users"
+                data:
+                  uuid: "7c4a1622-6b99-4d69-b1d5-2e11d08e4587"
+                  uuid_user: "1a2b3c4d-5e6f..."
+                  username: "user001"
+                  email: "user001@gmail.com"
+                  firstName: "John"
+                  lastName: "Doe"
+                  gender: "male"
+        "500":
+          description: Internal Server Error
+
+  /api/v1/users/update/{uuid}:
+    put:
+      tags:
+        - User Service
+      summary: Update Profile Pengguna
+      description: Memperbarui data profil pengguna berdasarkan UUID. Membutuhkan token autentikasi.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: UUID unik milik pengguna yang akan diperbarui
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                phone:
+                  type: string
+                gender:
+                  type: string
+                address:
+                  type: string
+                link_pict:
+                  type: string
+              example:
+                username: "user001_updated"
+                email: "user001@gmail.com"
+                firstName: "John"
+                lastName: "Smith"
+                phone: "08123456789"
+                gender: "male"
+                address: "Jl. Merdeka No. 1"
+                link_pict: "https://example.com"
+      responses:
+        "200":
+          description: Update Berhasil
+          content:
+            application/json:
+              example:
+                status: 200
+                data: "updated success"
+        "500":
+          description: Internal Server Error
