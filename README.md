@@ -1,4 +1,5 @@
-Berikut adalah ringkasan langkah-langkah penyiapan infrastruktur server (*self-hosted VM/EC2*) dan konfigurasi jaringan/firewall untuk panduanmu di masa depan:
+Cara install Nginx dan Setup EC2 untuk deployment infrastruktur
+Source: https://stackoverflow.com/questions/57784287/how-to-install-nginx-on-aws-ec2-linux-2
 
 * **Hubungkan DNS Subdomain ke IP VM**
 Masuk ke pengelola domain (seperti Cloudflare atau registrar tempat domain dibeli), lalu buat **A Record** untuk setiap subdomain (misalnya `api`, `rabbitmq`, `docs`, `grafana`, `prometheus`) yang mengarah langsung ke IP Public VM/servermu.
