@@ -54,6 +54,7 @@ jobs:
           set -e
           docker run --rm \
             -v "${GITHUB_WORKSPACE}/api-gateway/kong.yml:/kong.yml:ro" \
+            -e KONG_DATABASE=off \
             kong:latest \
             kong config parse /kong.yml
 
