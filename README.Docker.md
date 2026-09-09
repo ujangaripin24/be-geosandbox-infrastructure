@@ -16,8 +16,8 @@ Then, push it to your registry, e.g. `docker push myregistry.com/myapp`.
 Consult Docker's [getting started](https://docs.docker.com/go/get-started-sharing/)
 docs for more detail on building and pushing.
 
-==========================
-Beberapa poin yang biasanya perlu dicek di server Anda:
+
+# Beberapa poin yang biasanya perlu dicek di server Anda:
 
 * siapkan GitHub Actions self-hosted runner terpasang
 * siapkan Nginx aktif
@@ -26,7 +26,7 @@ Beberapa poin yang biasanya perlu dicek di server Anda:
 * siapkan docker dan docker compose terinstall
 * siapkan repo infrastruktur ini akan dipakai langsung di
 
-Setelah Anda selesai riset, saya bisa lanjutkan ke tahap berikut:
+# Setelah Anda selesai riset, saya bisa lanjutkan ke tahap berikut:
 
 * menyesuaikan domain dan subdomain yang benar
 * menambahkan SSL/HTTPS dengan certbot
