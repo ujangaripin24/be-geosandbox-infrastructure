@@ -483,14 +483,6 @@ paths:
       description: Memperbarui data profil pengguna berdasarkan UUID. Membutuhkan token autentikasi.
       security:
         - bearerAuth: []
-      parameters:
-        - name: uuid
-          in: path
-          required: true
-          description: UUID unik milik pengguna yang akan diperbarui
-          schema:
-            type: string
-            format: uuid
       requestBody:
         required: true
         content:
