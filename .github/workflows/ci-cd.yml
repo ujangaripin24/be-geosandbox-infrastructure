@@ -1,1 +1,199 @@
 name: CI/CD Global Infrastructure
+
+on:
+  push:
+    branches: [ development ]
+  pull_request:
+    branches: [ development ]
+  workflow_dispatch:
+
+env:
+  PROJECT_PATH: /opt/geosandbox-infrastructure
+  DOCKER_NETWORK: global-network-geosandbox
+  DOMAIN_BASE: example.com
+  KONG_SUBDOMAIN: api
+  RABBITMQ_SUBDOMAIN: rabbitmq
+  SWAGGER_SUBDOMAIN: docs
+  GRAFANA_SUBDOMAIN: grafana
+  PROMETHEUS_SUBDOMAIN: prometheus
+
+jobs:
+  validate:
+    name: Validate Infrastructure
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check required tools
+        shell: bash
+        run: |
+          set -e
+          command -v docker
+          docker --version
+          docker compose version
+
+      - name: Validate Docker Compose files
+        shell: bash
+        run: |
+          set -e
+          for compose in \
+            api-gateway/docker-compose.yml \
+            message-broker/docker-compose.yml \
+            monitoring/docker-compose.yml \
+            collection-endpoint/docker-compose.yml
+          do
+            echo "Validating $compose"
+            docker compose -f "$compose" config > /tmp/compose-check.txt
+          done
+
+      - name: Validate Kong declarative config
+        shell: bash
+        run: |
+          set -e
+          docker run --rm \
+            -v "${GITHUB_WORKSPACE}/api-gateway/kong.yml:/kong.yml:ro" \
+            kong:latest \
+            kong config parse /kong.yml
+
+  deploy:
+    name: Deploy to Self-Hosted VM
+    needs: validate
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/development'
+    runs-on: self-hosted
+    environment: development
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare deployment directory
+        shell: bash
+        run: |
+          set -e
+          sudo mkdir -p "$PROJECT_PATH"
+          sudo chown -R "$(id -un):$(id -gn)" "$PROJECT_PATH"
+          rsync -a --delete "${GITHUB_WORKSPACE}/" "$PROJECT_PATH/"
+
+      - name: Ensure shared Docker network
+        shell: bash
+        run: |
+          set -e
+          docker network inspect "$DOCKER_NETWORK" >/dev/null 2>&1 || docker network create "$DOCKER_NETWORK"
+
+      - name: Deploy API Gateway
+        working-directory: ${{ env.PROJECT_PATH }}
+        shell: bash
+        run: |
+          set -e
+          docker compose -f api-gateway/docker-compose.yml up -d --remove-orphans
+
+      - name: Deploy Message Broker
+        working-directory: ${{ env.PROJECT_PATH }}
+        shell: bash
+        run: |
+          set -e
+          docker compose -f message-broker/docker-compose.yml up -d --remove-orphans
+
+      - name: Deploy Monitoring
+        working-directory: ${{ env.PROJECT_PATH }}
+        shell: bash
+        run: |
+          set -e
+          docker compose -f monitoring/docker-compose.yml up -d --remove-orphans
+
+      - name: Deploy Swagger UI
+        working-directory: ${{ env.PROJECT_PATH }}
+        shell: bash
+        run: |
+          set -e
+          docker compose -f collection-endpoint/docker-compose.yml up -d --remove-orphans
+
+      - name: Configure reverse proxy subdomains
+        shell: bash
+        run: |
+          set -e
+          sudo mkdir -p /etc/nginx/conf.d
+          sudo tee /etc/nginx/conf.d/geosandbox.conf >/dev/null <<EOF
+          server {
+              listen 80;
+              server_name ${KONG_SUBDOMAIN}.${DOMAIN_BASE};
+
+              location / {
+                  proxy_pass http://127.0.0.1:8000;
+                  proxy_set_header Host \$host;
+                  proxy_set_header X-Real-IP \$remote_addr;
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto \$scheme;
+              }
+          }
+
+          server {
+              listen 80;
+              server_name ${RABBITMQ_SUBDOMAIN}.${DOMAIN_BASE};
+
+              location / {
+                  proxy_pass http://127.0.0.1:15672;
+                  proxy_set_header Host \$host;
+                  proxy_set_header X-Real-IP \$remote_addr;
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto \$scheme;
+              }
+          }
+
+          server {
+              listen 80;
+              server_name ${SWAGGER_SUBDOMAIN}.${DOMAIN_BASE};
+
+              location / {
+                  proxy_pass http://127.0.0.1:8080;
+                  proxy_set_header Host \$host;
+                  proxy_set_header X-Real-IP \$remote_addr;
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto \$scheme;
+              }
+          }
+
+          server {
+              listen 80;
+              server_name ${GRAFANA_SUBDOMAIN}.${DOMAIN_BASE};
+
+              location / {
+                  proxy_pass http://127.0.0.1:3000;
+                  proxy_set_header Host \$host;
+                  proxy_set_header X-Real-IP \$remote_addr;
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto \$scheme;
+              }
+          }
+
+          server {
+              listen 80;
+              server_name ${PROMETHEUS_SUBDOMAIN}.${DOMAIN_BASE};
+
+              location / {
+                  proxy_pass http://127.0.0.1:9090;
+                  proxy_set_header Host \$host;
+                  proxy_set_header X-Real-IP \$remote_addr;
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto \$scheme;
+              }
+          }
+          EOF
+
+          if command -v nginx >/dev/null 2>&1; then
+            sudo nginx -t
+            sudo nginx -s reload || sudo systemctl reload nginx
+          else
+            echo "nginx not installed; configure reverse proxy manually on the VM."
+          fi
+
+      - name: Health checks
+        shell: bash
+        run: |
+          set -e
+          curl -fsS http://127.0.0.1:8001 >/dev/null
+          curl -fsS http://127.0.0.1:15672 >/dev/null
+          curl -fsS http://127.0.0.1:8080 >/dev/null
+          echo "Infrastructure deployment completed successfully."
