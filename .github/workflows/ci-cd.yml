@@ -127,7 +127,7 @@ jobs:
         shell: bash
         run: |
           set -e
-          docker compose -f jenkins/docker-compose.yml up -d --remove-orphans
+          docker compose -f jenkins/compose.yaml up -d --remove-orphans
 
       - name: Configure reverse proxy subdomains
         shell: bash
