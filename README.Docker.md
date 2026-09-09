@@ -17,7 +17,7 @@ Consult Docker's [getting started](https://docs.docker.com/go/get-started-sharin
 docs for more detail on building and pushing.
 
 
-# Beberapa poin yang biasanya perlu dicek di server Anda:
+# Beberapa poin yang perlu dicek di server:
 
 * siapkan GitHub Actions self-hosted runner terpasang
 * siapkan Nginx aktif
@@ -26,7 +26,7 @@ docs for more detail on building and pushing.
 * siapkan docker dan docker compose terinstall
 * siapkan repo infrastruktur ini akan dipakai langsung di
 
-# Setelah Anda selesai riset, saya bisa lanjutkan ke tahap berikut:
+# Setelah selesai riset, bisa lanjutkan ke tahap berikut:
 
 * menyesuaikan domain dan subdomain yang benar
 * menambahkan SSL/HTTPS dengan certbot
