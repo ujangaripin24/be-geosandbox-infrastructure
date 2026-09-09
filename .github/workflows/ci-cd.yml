@@ -49,14 +49,14 @@ jobs:
           done
 
       - name: Validate Kong declarative config
-              shell: bash
-              run: |
-                set -e
-                docker run --rm \
-                  -v "${GITHUB_WORKSPACE}/api-gateway/kong.yml:/kong.yml:ro" \
-                  -e KONG_DATABASE=off \
-                  kong:latest \
-                  kong config parse /kong.yml
+        shell: bash
+        run: |
+          set -e
+          docker run --rm \
+            -v "${GITHUB_WORKSPACE}/api-gateway/kong.yml:/kong.yml:ro" \
+            -e KONG_DATABASE=off \
+            kong:latest \
+            kong config parse /kong.yml
 
   deploy:
     name: Deploy to Self-Hosted VM
