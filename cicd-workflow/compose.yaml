@@ -1,6 +1,6 @@
 services:
   jenkins:
-    image: jenkins/jenkins:2.581
+    image: jenkins/jenkins:latest
     container_name: global-jenkins-cicd
     restart: on-failure
     ports:
