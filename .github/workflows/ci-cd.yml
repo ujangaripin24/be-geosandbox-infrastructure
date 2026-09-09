@@ -16,6 +16,7 @@ env:
   SWAGGER_SUBDOMAIN: docs
   GRAFANA_SUBDOMAIN: grafana
   PROMETHEUS_SUBDOMAIN: prometheus
+  JENKINS_SUBDOMAIN: jenkins
 
 jobs:
   validate:
@@ -57,6 +58,16 @@ jobs:
             -e KONG_DATABASE=off \
             kong:latest \
             kong config parse /kong.yml
+
+      - name: Validate Jenkins declarative pipeline
+        shell: bash
+        run: |
+          set -e
+          if ! command -v jenkins-cli >/dev/null 2>&1; then
+            echo "Jenkins CLI not found; skipping Jenkinsfile validation."
+            exit 0
+          fi
+          jenkins-cli -s http://localhost:8780/ declarative-linter < "${GITHUB_WORKSPACE}/Jenkinsfile"
 
   deploy:
     name: Deploy to Self-Hosted VM
@@ -110,6 +121,13 @@ jobs:
         run: |
           set -e
           docker compose -f collection-endpoint/docker-compose.yml up -d --remove-orphans
+
+      - name: Deploy Jenkins
+        working-directory: ${{ env.PROJECT_PATH }}
+        shell: bash
+        run: |
+          set -e
+          docker compose -f jenkins/docker-compose.yml up -d --remove-orphans
 
       - name: Configure reverse proxy subdomains
         shell: bash
@@ -181,6 +199,19 @@ jobs:
                   proxy_set_header X-Forwarded-Proto \$scheme;
               }
           }
+
+          server {
+              listen 80;
+              server_name ${JENKINS_SUBDOMAIN}.${DOMAIN_BASE};
+
+              location / {
+                  proxy_pass http://127.0.0.1:8780;
+                  proxy_set_header Host \$host;
+                  proxy_set_header X-Real-IP \$remote_addr;
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto \$scheme;
+              }
+          }
           EOF
 
           if command -v nginx >/dev/null 2>&1; then
@@ -197,4 +228,7 @@ jobs:
           curl -fsS http://127.0.0.1:8001 >/dev/null
           curl -fsS http://127.0.0.1:15672 >/dev/null
           curl -fsS http://127.0.0.1:8080 >/dev/null
+          curl -fsS http://127.0.0.1:3000 >/dev/null
+          curl -fsS http://127.0.0.1:9090 >/dev/null
+          curl -fsS http://127.0.0.1:8780 >/dev/null
           echo "Infrastructure deployment completed successfully."
