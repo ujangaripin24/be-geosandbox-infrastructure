@@ -10,7 +10,7 @@ on:
 env:
   PROJECT_PATH: /opt/geosandbox-infrastructure
   DOCKER_NETWORK: global-network-geosandbox
-  DOMAIN_BASE: example.com
+  DOMAIN_BASE: gepsandbox-global-infra.com
   KONG_SUBDOMAIN: api
   RABBITMQ_SUBDOMAIN: rabbitmq
   SWAGGER_SUBDOMAIN: docs
