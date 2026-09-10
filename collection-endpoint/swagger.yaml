@@ -475,7 +475,7 @@ paths:
         "500":
           description: Internal Server Error
 
-  /api/v1/users/update/{uuid}:
+  /api/v1/users/update:
     put:
       tags:
         - User Service
@@ -503,8 +503,6 @@ paths:
                   type: string
                 gender:
                   type: string
-                address:
-                  type: string
                 link_pict:
                   type: string
               example:
@@ -514,7 +512,6 @@ paths:
                 lastName: "Smith"
                 phone: "08123456789"
                 gender: "male"
-                address: "Jl. Merdeka No. 1"
                 link_pict: "https://example.com"
       responses:
         "200":
