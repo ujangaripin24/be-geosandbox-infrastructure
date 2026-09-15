@@ -10,7 +10,11 @@ scrape_configs:
   - job_name: "node"
     static_configs:
       - targets: ["node-exporter:9100"]
-      
+
+  - job_name: "rabbitmq"
+    static_configs:
+      - targets: ["global-rabbitmq:15692"]
+
   - job_name: "kong"
     static_configs:
-      - targets: ["host.docker.internal:8001"] 
+      - targets: ["host.docker.internal:8001"]
