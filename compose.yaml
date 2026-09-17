@@ -5,3 +5,4 @@ include:
   - path: message-broker/docker-compose.yml
   - path: monitoring/docker-compose.yml
   - path: collection-endpoint/docker-compose.yml
+  - path: search-enginee/compose.yaml
