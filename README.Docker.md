@@ -1,7 +1,21 @@
 ### Building and running your application
 
-When you're ready, start your application by running:
-`docker compose up --build`.
+### Menjalankan seluruh infrastructure stack
+
+Dari folder `be-geosandbox-infrastructure`, jalankan satu perintah:
+
+`docker compose up -d`
+
+Perintah tersebut menjalankan API Gateway, message broker, monitoring, dan Swagger UI.
+Pastikan network external `global-network-geosandbox` sudah dibuat karena network ini juga dipakai oleh service lain.
+
+Untuk menghentikan seluruh stack:
+
+`docker compose down`
+
+Untuk melihat log:
+
+`docker compose logs -f`
 
 ### Deploying your application to the cloud
 
