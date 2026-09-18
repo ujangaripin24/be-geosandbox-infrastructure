@@ -37,6 +37,14 @@ services:
           - /api/v1/user
         strip_path: false
 
+  - name: gis-service-geosandbox
+    url: http://gis_service_app:3620
+    routes:
+      - name: gis-service-route
+        paths:
+          - /api/v1/gis
+        strip_path: false
+
 # 2. Global Plugins Definition
 plugins:
   - name: cors
