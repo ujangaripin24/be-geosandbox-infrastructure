@@ -4,5 +4,7 @@ include:
   - path: api-gateway/docker-compose.yml
   - path: message-broker/docker-compose.yml
   - path: monitoring/docker-compose.yml
+  - path: nominatim/compose.yaml
+  - path: cicd-workflow/compose.yaml
   # - path: collection-endpoint/docker-compose.yml
   # - path: search-enginee/compose.yaml

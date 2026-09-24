@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  nominatim:
+    image: mediagis/nominatim:5.3
+    container_name: global-nominatim-search
+    restart: on-failure
+    ports:
+      - "8680:8080"
+    environment:
+      # PBF_URL diubah menjadi URL publik statis tanpa token S3 yang bisa expired
+      # Ganti 'rustfs' dengan nama service/container RustFS kamu jika satu network,
+      - PBF_URL=http://geosandbox_storage:9000/geo-osm-address-indonesia/java-260923.osm.pbf
+    volumes:
+      - nominatim-data:/var/lib/postgresql/16/main # Catatan: Nominatim 5.3 biasanya menggunakan Postgres 16
+    shm_size: 1g
+    networks:
+      - global-network-geosandbox
+
+volumes:
+  nominatim-data:
+
+networks:
+  global-network-geosandbox:
+    external: true
