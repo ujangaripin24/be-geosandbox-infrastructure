@@ -2,7 +2,7 @@ Cara install Nginx dan Setup EC2 untuk deployment infrastruktur
 Source: https://stackoverflow.com/questions/57784287/how-to-install-nginx-on-aws-ec2-linux-2
 
 - **Hubungkan DNS Subdomain ke IP VM**
-  Masuk ke pengelola domain (seperti Cloudflare atau registrar tempat domain dibeli), lalu buat **A Record** untuk setiap subdomain (misalnya `api`, `rabbitmq`, `docs`, `grafana`, `prometheus`) yang mengarah langsung ke IP Public VM/servermu.
+  Masuk ke pengelola domain (seperti Cloudflare atau registrar tempat domain dibeli), lalu buat **A Record** untuk setiap subdomain (misalnya `api`, `rabbitmq`, `docs`, `grafana`, `prometheus`) yang mengarah langsung ke IP Public VM/server.
 
 - **Install dan Konfigurasi Nginx (Reverse Proxy)**
 - Install Nginx di server menggunakan perintah `sudo apt update && sudo apt install nginx -y`.
@@ -16,16 +16,16 @@ Source: https://stackoverflow.com/questions/57784287/how-to-install-nginx-on-aws
 - Muat ulang firewall: `sudo ufw reload`.
 
 - **Siapkan GitHub Actions Self-Hosted Runner**
-- Pasang dan aktifkan _runner_ GitHub di dalam server VM agar terhubung ke repository GitHub-mu.
+- Pasang dan aktifkan _runner_ GitHub di dalam server VM agar terhubung ke repository GitHub.
 
 - **Eksekusi Deployment (CI/CD)**
 - Pastikan file `ci-cd.yml` sudah tersedia di repository.
 
 - Lakukan `git push` ke branch `development`. GitHub Actions akan otomatis memvalidasi file _compose_, membuat jaringan Docker bersama (`global-network-geosandbox`), menyalakan seluruh kontainer infrastruktur, memperbarui konfigurasi Nginx, dan menjalankan _health checks_.
 
-===
+---
 
-Berdasarkan hasil penelusuran langsung pada 5 direktori repository proyek Anda:
+5 direktori repository proyek:
 
 1. [be-geosandbox-infrastructure](file:///media/pratiwi24/c7468a67-9c5e-4403-93e8-cadc33a9abaf19/Project%20App/Express.js/be-geosandbox-infrastructure)
 2. [be-geosandbox-database-s3](file:///media/pratiwi24/c7468a67-9c5e-4403-93e8-cadc33a9abaf19/Project%20App/Express.js/be-geosandbox-database-s3)
