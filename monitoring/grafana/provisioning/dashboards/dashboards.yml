@@ -11,13 +11,52 @@ providers:
     options:
       path: /etc/grafana/provisioning/dashboards/definitions
 
-providers:
-  - name: "global-database-service"
-    orgId: 2
-    folder: "Global Database Service"
+  - name: "database-auth"
+    orgId: 1
+    folder: "Database - Auth Service"
     type: file
     disableDeletion: false
     updateIntervalSeconds: 10
     allowUiUpdates: true
     options:
-      path: /etc/grafana/provisioning/dashboards/database
+      path: /etc/grafana/provisioning/dashboards/database/db-auth
+
+  - name: "database-user"
+    orgId: 1
+    folder: "Database - User Service"
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/database/db-user
+
+  - name: "database-gis"
+    orgId: 1
+    folder: "Database - GIS Service"
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/database/db-gis
+
+  - name: "database-redis"
+    orgId: 1
+    folder: "Database - Redis Cache"
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/database/redis-cache
+
+  - name: "be-geosandbox-service"
+    orgId: 1
+    folder: "BE Geosandbox Service"
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/service
