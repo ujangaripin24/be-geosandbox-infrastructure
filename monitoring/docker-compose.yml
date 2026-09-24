@@ -7,6 +7,9 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - default
+      - global-network-geosandbox
 
   grafana:
     image: grafana/grafana:latest
@@ -21,6 +24,8 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
     depends_on:
       - prometheus
+    networks:
+      - default
 
   node-exporter:
     image: prom/node-exporter:latest
@@ -32,3 +37,10 @@ services:
       - '--path.rootfs=/host'
     volumes:
       - /:/host:ro,rslave
+    networks:
+      - default
+
+networks:
+  default:
+  global-network-geosandbox:
+    external: true
