@@ -10,7 +10,7 @@ services:
     environment:
       # PBF_URL diubah menjadi URL publik statis tanpa token S3 yang bisa expired
       # Ganti 'rustfs' dengan nama service/container RustFS kamu jika satu network,
-      - PBF_URL=http://geosandbox_storage:9000/geo-osm-address-indonesia/java-260923.osm.pbf
+      - PBF_URL=http://geosandbox_storage:9000/geo-osm-address-indonesia/sumatra-260927.osm.pbf
     volumes:
       - nominatim-data:/var/lib/postgresql/16/main # Catatan: Nominatim 5.3 biasanya menggunakan Postgres 16
     shm_size: 1g
