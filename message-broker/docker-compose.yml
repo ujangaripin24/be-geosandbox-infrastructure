@@ -4,9 +4,9 @@ services:
     container_name: global-rabbitmq
     restart: always
     ports:
-      - "5672:5672"       # Port Protokol AMQP
-      - "15672:15672"     # Port Dashboard UI
-      - "15692:15692"     # Port Prometheus Metrics (TAMBAHKAN INI)
+      - "5672:5672" # Port Protokol AMQP
+      - "15672:15672" # Port Dashboard UI
+      - "15692:15692" # Port Prometheus Metrics (TAMBAHKAN INI)
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -15,6 +15,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512M # Batasi maksimal 512MB RAM
+        reservations:
+          memory: 256M # Alokasi awal 256MB RAM
     networks:
       - global-network-geosandbox
 
