@@ -6,7 +6,7 @@ services:
     ports:
       - "5672:5672" # Port Protokol AMQP
       - "15672:15672" # Port Dashboard UI
-      - "15692:15692" # Port Prometheus Metrics (TAMBAHKAN INI)
+      - "15692:15692" # Port Prometheus Metrics
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -18,9 +18,9 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M # Batasi maksimal 512MB RAM
+          memory: 1024M # Batasi maksimal 1024MB RAM
         reservations:
-          memory: 256M # Alokasi awal 256MB RAM
+          memory: 512M # Alokasi awal 256MB RAM
     networks:
       - global-network-geosandbox
 
