@@ -62,6 +62,7 @@ plugins:
         - Accept
         - Authorization
         - Content-Type
+        - X-Client-Type
       credentials: true
       max_age: 3600
 
