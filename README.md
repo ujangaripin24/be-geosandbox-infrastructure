@@ -1,5 +1,4 @@
-Cara install Nginx dan Setup EC2 untuk deployment infrastruktur
-Source: https://stackoverflow.com/questions/57784287/how-to-install-nginx-on-aws-ec2-linux-2
+# Infrastructure Version 20/10/2026
 
 - **Hubungkan DNS Subdomain ke IP VM**
   Masuk ke pengelola domain (seperti Cloudflare atau registrar tempat domain dibeli), lalu buat **A Record** untuk setiap subdomain (misalnya `api`, `rabbitmq`, `docs`, `grafana`, `prometheus`) yang mengarah langsung ke IP Public VM/server.
