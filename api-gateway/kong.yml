@@ -20,7 +20,7 @@ services:
         paths:
           - /api/v1/geojson
         strip_path: true
-        
+
   - name: auth-service-geosandbox
     url: http://auth_service_app:3610
     routes:
