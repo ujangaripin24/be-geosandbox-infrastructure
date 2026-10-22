@@ -50,7 +50,7 @@ plugins:
   - name: cors
     config:
       origins:
-        - "*"
+        - "http://localhost:5173"
       methods:
         - GET
         - POST

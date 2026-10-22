@@ -14,12 +14,12 @@ services:
     volumes:
       - ./kong.yml:/usr/local/kong/declarative/kong.yml:ro
     ports:
-      - "8000:8443" # HTTPS Proxy Listener di Port 8000 (https://localhost:8000)
       # - "8000:8443" # HTTPS Proxy Listener di Port 8000 (https://localhost:8000)
+      - "8000:8000" # HTTP Proxy Listener di Port 8000 (http://localhost:8000)
       - "8443:8443" # HTTPS Proxy Listener Default
       - "8001:8001" # Admin API (Read-only dalam DB-less mode)
     healthcheck:
-      test: [ "CMD", "kong", "health" ]
+      test: ["CMD", "kong", "health"]
       interval: 10s
       timeout: 10s
       retries: 5
