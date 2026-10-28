@@ -28,6 +28,12 @@ services:
         paths:
           - /api/v1/auth
         strip_path: false
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 50
+          hour: 500
+          policy: local
 
   - name: user-service-geosandbox
     url: http://user_service_app:3630
@@ -36,6 +42,12 @@ services:
         paths:
           - /api/v1/user
         strip_path: false
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 50
+          hour: 500
+          policy: local
 
   - name: gis-service-geosandbox
     url: http://gis_service_app:3620
@@ -44,6 +56,12 @@ services:
         paths:
           - /api/v1/gis
         strip_path: false
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 50
+          hour: 500
+          policy: local
 
 # 2. Global Plugins Definition
 plugins:
