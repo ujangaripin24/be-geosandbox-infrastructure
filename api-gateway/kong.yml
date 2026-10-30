@@ -63,6 +63,20 @@ services:
           hour: 500
           policy: local
 
+  - name: notif-service-geosandbox
+    url: http://notif_service_app:3640
+    routes:
+      - name: notif-service-route
+        paths:
+          - /api/v1/notif
+        strip_path: false
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 50
+          hour: 500
+          policy: local
+
 # 2. Global Plugins Definition
 plugins:
   - name: cors
