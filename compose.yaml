@@ -9,4 +9,4 @@ include:
   # - path: nominatim/compose.yaml
   # - path: cicd-workflow/compose.yaml
   # - path: collection-endpoint/docker-compose.yml
-  # - path: search-enginee/compose.yaml
+  - path: search-enginee/compose.yaml
