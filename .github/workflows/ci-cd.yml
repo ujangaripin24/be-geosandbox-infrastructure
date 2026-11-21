@@ -13,10 +13,8 @@ env:
   DOMAIN_BASE: gepsandbox-global-infra.com
   KONG_SUBDOMAIN: api
   RABBITMQ_SUBDOMAIN: rabbitmq
-  SWAGGER_SUBDOMAIN: docs
-  GRAFANA_SUBDOMAIN: grafana
-  PROMETHEUS_SUBDOMAIN: prometheus
   JENKINS_SUBDOMAIN: jenkins
+  ELASTICSEARCH_SUBDOMAIN: search
 
 jobs:
   validate:
@@ -35,19 +33,18 @@ jobs:
           docker --version
           docker compose version
 
-      - name: Validate Docker Compose files
+      - name: Ensure shared Docker network for validation
         shell: bash
         run: |
           set -e
-          for compose in \
-            api-gateway/docker-compose.yml \
-            message-broker/docker-compose.yml \
-            monitoring/docker-compose.yml \
-            collection-endpoint/docker-compose.yml
-          do
-            echo "Validating $compose"
-            docker compose -f "$compose" config > /tmp/compose-check.txt
-          done
+          docker network inspect "$DOCKER_NETWORK" >/dev/null 2>&1 || docker network create "$DOCKER_NETWORK"
+
+      - name: Validate Root Docker Compose (compose.yaml)
+        shell: bash
+        run: |
+          set -e
+          echo "Validating compose.yaml and all included modules..."
+          docker compose -f compose.yaml config > /tmp/compose-check.txt
 
       - name: Validate Kong declarative config
         shell: bash
@@ -88,46 +85,30 @@ jobs:
           sudo chown -R "$(id -un):$(id -gn)" "$PROJECT_PATH"
           rsync -a --delete "${GITHUB_WORKSPACE}/" "$PROJECT_PATH/"
 
+      - name: Ensure Elasticsearch kernel parameter (vm.max_map_count)
+        shell: bash
+        run: |
+          set -e
+          CURRENT_MAP_COUNT=$(sysctl -n vm.max_map_count || echo 0)
+          if [ "$CURRENT_MAP_COUNT" -lt 262144 ]; then
+            sudo sysctl -w vm.max_map_count=262144
+            if ! grep -q "vm.max_map_count" /etc/sysctl.conf; then
+              echo "vm.max_map_count=262144" | sudo tee -a /etc/sysctl.conf
+            fi
+          fi
+
       - name: Ensure shared Docker network
         shell: bash
         run: |
           set -e
           docker network inspect "$DOCKER_NETWORK" >/dev/null 2>&1 || docker network create "$DOCKER_NETWORK"
 
-      - name: Deploy API Gateway
+      - name: Deploy Infrastructure from Root compose.yaml
         working-directory: ${{ env.PROJECT_PATH }}
         shell: bash
         run: |
           set -e
-          docker compose -f api-gateway/docker-compose.yml up -d --remove-orphans
-
-      - name: Deploy Message Broker
-        working-directory: ${{ env.PROJECT_PATH }}
-        shell: bash
-        run: |
-          set -e
-          docker compose -f message-broker/docker-compose.yml up -d --remove-orphans
-
-      - name: Deploy Monitoring
-        working-directory: ${{ env.PROJECT_PATH }}
-        shell: bash
-        run: |
-          set -e
-          docker compose -f monitoring/docker-compose.yml up -d --remove-orphans
-
-      - name: Deploy Swagger UI
-        working-directory: ${{ env.PROJECT_PATH }}
-        shell: bash
-        run: |
-          set -e
-          docker compose -f collection-endpoint/docker-compose.yml up -d --remove-orphans
-
-      - name: Deploy Jenkins
-        working-directory: ${{ env.PROJECT_PATH }}
-        shell: bash
-        run: |
-          set -e
-          docker compose -f cicd-workflow/compose.yaml up -d --remove-orphans
+          docker compose -f compose.yaml up -d --remove-orphans
 
       - name: Configure reverse proxy subdomains
         shell: bash
@@ -163,49 +144,23 @@ jobs:
 
           server {
               listen 80;
-              server_name ${SWAGGER_SUBDOMAIN}.${DOMAIN_BASE};
-
-              location / {
-                  proxy_pass http://127.0.0.1:8080;
-                  proxy_set_header Host \$host;
-                  proxy_set_header X-Real-IP \$remote_addr;
-                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                  proxy_set_header X-Forwarded-Proto \$scheme;
-              }
-          }
-
-          server {
-              listen 80;
-              server_name ${GRAFANA_SUBDOMAIN}.${DOMAIN_BASE};
-
-              location / {
-                  proxy_pass http://127.0.0.1:3000;
-                  proxy_set_header Host \$host;
-                  proxy_set_header X-Real-IP \$remote_addr;
-                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                  proxy_set_header X-Forwarded-Proto \$scheme;
-              }
-          }
-
-          server {
-              listen 80;
-              server_name ${PROMETHEUS_SUBDOMAIN}.${DOMAIN_BASE};
-
-              location / {
-                  proxy_pass http://127.0.0.1:9090;
-                  proxy_set_header Host \$host;
-                  proxy_set_header X-Real-IP \$remote_addr;
-                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                  proxy_set_header X-Forwarded-Proto \$scheme;
-              }
-          }
-
-          server {
-              listen 80;
               server_name ${JENKINS_SUBDOMAIN}.${DOMAIN_BASE};
 
               location / {
                   proxy_pass http://127.0.0.1:8780;
+                  proxy_set_header Host \$host;
+                  proxy_set_header X-Real-IP \$remote_addr;
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto \$scheme;
+              }
+          }
+
+          server {
+              listen 80;
+              server_name ${ELASTICSEARCH_SUBDOMAIN}.${DOMAIN_BASE};
+
+              location / {
+                  proxy_pass http://127.0.0.1:9200;
                   proxy_set_header Host \$host;
                   proxy_set_header X-Real-IP \$remote_addr;
                   proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -245,8 +200,6 @@ jobs:
 
           wait_for_http "Kong Admin API" http://127.0.0.1:8001/status
           wait_for_http "RabbitMQ Management" http://127.0.0.1:15672
-          wait_for_http "Swagger UI" http://127.0.0.1:8080
-          wait_for_http "Grafana" http://127.0.0.1:3000/api/health
-          wait_for_http "Prometheus" http://127.0.0.1:9090/-/ready
+          wait_for_http "Elasticsearch Cluster" http://127.0.0.1:9200/_cluster/health
           wait_for_http "Jenkins" http://127.0.0.1:8780/login
           echo "Infrastructure deployment completed successfully."
