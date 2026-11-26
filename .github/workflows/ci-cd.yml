@@ -13,7 +13,6 @@ env:
   DOMAIN_BASE: gepsandbox-global-infra.com
   KONG_SUBDOMAIN: api
   RABBITMQ_SUBDOMAIN: rabbitmq
-  JENKINS_SUBDOMAIN: jenkins
   ELASTICSEARCH_SUBDOMAIN: search
 
 jobs:
@@ -55,16 +54,6 @@ jobs:
             -e KONG_DATABASE=off \
             kong:latest \
             kong config parse /kong.yml
-
-      - name: Validate Jenkins declarative pipeline
-        shell: bash
-        run: |
-          set -e
-          if ! command -v jenkins-cli >/dev/null 2>&1; then
-            echo "Jenkins CLI not found; skipping Jenkinsfile validation."
-            exit 0
-          fi
-          jenkins-cli -s http://localhost:8780/ declarative-linter < "${GITHUB_WORKSPACE}/Jenkinsfile"
 
   deploy:
     name: Deploy to Self-Hosted VM
@@ -144,19 +133,6 @@ jobs:
 
           server {
               listen 80;
-              server_name ${JENKINS_SUBDOMAIN}.${DOMAIN_BASE};
-
-              location / {
-                  proxy_pass http://127.0.0.1:8780;
-                  proxy_set_header Host \$host;
-                  proxy_set_header X-Real-IP \$remote_addr;
-                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                  proxy_set_header X-Forwarded-Proto \$scheme;
-              }
-          }
-
-          server {
-              listen 80;
               server_name ${ELASTICSEARCH_SUBDOMAIN}.${DOMAIN_BASE};
 
               location / {
@@ -201,5 +177,4 @@ jobs:
           wait_for_http "Kong Admin API" http://127.0.0.1:8001/status
           wait_for_http "RabbitMQ Management" http://127.0.0.1:15672
           wait_for_http "Elasticsearch Cluster" http://127.0.0.1:9200/_cluster/health
-          wait_for_http "Jenkins" http://127.0.0.1:8780/login
           echo "Infrastructure deployment completed successfully."
